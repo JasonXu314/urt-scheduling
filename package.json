@@ -2,6 +2,7 @@
 	"name": "urt-scheduling",
 	"version": "1.0.0",
 	"description": "",
+	"type": "module",
 	"scripts": {
 		"dev": "nodemon src/main.ts",
 		"start": "node build/main.js",
@@ -21,3 +22,4 @@
 		"typescript": "^5.1.6"
 	}
 }
+

@@ -1,7 +1,7 @@
 import { ActionRowBuilder, ButtonBuilder } from '@discordjs/builders';
 import { randomUUID } from 'crypto';
 import { APIButtonComponent, ButtonStyle, Client, GatewayIntentBits, TextChannel, TextInputBuilder, TextInputStyle } from 'discord.js';
-import { parseTime } from './utils';
+import { parseTime } from './utils.js';
 
 const ROLE_IDS = ['410642595925065738', '410642139530133527', '410641725824958486'];
 const ROLE_NAMES = ['Computing Division Lead', 'Mechanical Division Lead', 'Electrical Division Lead'];
