@@ -1,0 +1,6 @@
+{
+	"ignore": "build/*",
+	"execMap": {
+		"ts": "ts-node"
+	}
+}
