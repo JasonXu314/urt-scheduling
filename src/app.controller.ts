@@ -1,11 +1,11 @@
-import { Body, Controller, Delete, Get, HttpStatus, Param, ParseIntPipe, Post, Query, Res, UnauthorizedException, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, HttpStatus, Post, Query, Res, UnauthorizedException, UseGuards } from '@nestjs/common';
 import { randomUUID } from 'crypto';
 import { Response } from 'express';
 import { DateTime } from 'luxon';
 import { AppService } from './app.service';
 import { DataService } from './data/data.service';
 import { DiscordService } from './discord/discord.service';
-import { ConfirmDTO, CreateDivisionDTO, CreateMeetingDTO, DeleteMeetingDTO, LoginDTO } from './dtos';
+import { ConfirmDTO, CreateDivisionDTO, CreateMeetingDTO, DeleteDivisionDTO, DeleteMeetingDTO, LoginDTO } from './dtos';
 import { ErrorPage } from './utils/filters/error.filter';
 import { Redirect } from './utils/filters/redirect.filter';
 import { AuthGuard } from './utils/guards/auth.guard';
@@ -107,11 +107,13 @@ export class AppController {
 			<label>
 				Division
 				<select name="division">
-					${this.data.divisions.map(
-						(division) => `
+					${this.data.divisions
+						.map(
+							(division) => `
 					<option>${division.name}</option>
 					`
-					)}
+						)
+						.join('')}
 				</select>
 			</label>
 			<label>
@@ -146,7 +148,10 @@ export class AppController {
 
 	@Get('/config')
 	@UseGuards(AuthGuard, ConfigGuard)
-	public async config(): Promise<string> {
+	public async config(@Token() token: string): Promise<string> {
+		const userId = this.data.tokens.find((t) => t.token === token)!.userId;
+		const canConfig = await this.appService.isAdmin(userId);
+
 		return page('URT Scheduler - Config')`
 			<h1>Edit Config</h1>
 			${$ifel(this.data.divisions.length === 0)`<h2>No Divisions Currently...</h2>``
@@ -157,17 +162,24 @@ export class AppController {
 						<th scope="col">Channel ID</th>
 						<th scope="col">Role ID</th>
 						<th scope="col">Voice Channel ID</th>
+						${$if(canConfig)`<th scope="col"></th>`}
 					</tr>
 				</thead>
 				<tbody>
 					${this.data.divisions
 						.map(
-							(division) => `
+							(division, i) => `
 					<tr>
 						<td>${division.name}</td>
 						<td>${division.channelId}</td>
 						<td>${division.roleId}</td>
 						<td>${division.voiceChannelId}</td>
+						${$if(canConfig)`<td>
+							<form action="/delete-division" method="POST">
+								<input type="hidden" name="idx" value="${i}"></input>
+								<button type="submit" class="error table-btn">Delete</button>
+							</form>
+						</td>`}
 					</tr>
 					`
 						)
@@ -194,31 +206,37 @@ export class AppController {
 			<label>
 				Division Channel
 				<select name="channelId">
-					${textChannels.map(
-						(channel) => `
+					${textChannels
+						.map(
+							(channel) => `
 					<option value="${channel.id}">${channel.name}</option>
 					`
-					)}
+						)
+						.join('')}
 				</select>
 			</label>
 			<label>
 				Division Role
 				<select name="roleId">
-					${roles.map(
-						(role) => `
+					${roles
+						.map(
+							(role) => `
 					<option value="${role.id}">${role.name}</option>
 					`
-					)}
+						)
+						.join('')}
 				</select>
 			</label>
 			<label>
 				Meeting Voice Channel
 				<select name="voiceChannelId">
-					${voiceChannels.map(
-						(channel) => `
+					${voiceChannels
+						.map(
+							(channel) => `
 					<option value="${channel.id}">${channel.name}</option>
 					`
-					)}
+						)
+						.join('')}
 				</select>
 			</label>
 			<button type="submit">Create</button>
@@ -233,8 +251,8 @@ export class AppController {
 		throw new Redirect('/config');
 	}
 
-	@Delete('/divisions/:index')
-	public deleteDivisionAPI(@Param('index', ParseIntPipe) idx: number): never {
+	@Post('/delete-meeting')
+	public deleteDivisionAPI(@Body() { idx }: DeleteDivisionDTO): never {
 		if (this.data.divisions.length > idx && idx >= 0) {
 			this.data.divisions = [...this.data.divisions.slice(0, idx), ...this.data.divisions.slice(idx + 1)];
 		}

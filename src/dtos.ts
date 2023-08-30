@@ -1,10 +1,15 @@
-import { IsIn, IsOptional, IsString, Validate } from 'class-validator';
+import { IsIn, IsInt, IsOptional, IsString, Validate } from 'class-validator';
 import { IsCheckbox, fi } from './utils/utils';
 import { DateString, DateValidator, TimeString, TimeValidator } from './utils/validators';
 
 export class DeleteMeetingDTO {
 	@IsString()
 	id: string = fi();
+}
+
+export class DeleteDivisionDTO {
+	@IsInt()
+	idx: number = fi();
 }
 
 export class LoginDTO {
