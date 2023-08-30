@@ -1,5 +1,5 @@
 import { Transform } from 'class-transformer';
-import { IsIn, IsNumberString, IsOptional, IsString, Validate } from 'class-validator';
+import { IsIn, IsInt, IsOptional, IsString, Validate } from 'class-validator';
 import { IsCheckbox, fi } from './utils/utils';
 import { DateString, DateValidator, TimeString, TimeValidator } from './utils/validators';
 
@@ -9,7 +9,7 @@ export class DeleteMeetingDTO {
 }
 
 export class DeleteDivisionDTO {
-	@IsNumberString()
+	@IsInt()
 	@Transform(({ obj, key, value }) => (obj[key] = parseInt(value)))
 	idx: number = fi();
 }
