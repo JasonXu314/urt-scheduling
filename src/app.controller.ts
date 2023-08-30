@@ -251,7 +251,7 @@ export class AppController {
 		throw new Redirect('/config');
 	}
 
-	@Post('/delete-meeting')
+	@Post('/delete-division')
 	public deleteDivisionAPI(@Body() { idx }: DeleteDivisionDTO): never {
 		if (this.data.divisions.length > idx && idx >= 0) {
 			this.data.divisions = [...this.data.divisions.slice(0, idx), ...this.data.divisions.slice(idx + 1)];
