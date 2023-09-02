@@ -90,7 +90,7 @@ export class AppController {
 			<label>
 				Date
 				<div class="row">
-					<input type="type" name="date" placeholder="DD/MM">
+					<input type="type" name="date" placeholder="MM/DD">
 					<span data-tooltip="Can also use keywords 'today' or 'tomorrow'" data-placement="left"><i class="fa-solid fa-circle-info"></i></span>
 				</div>
 			</label>
@@ -254,7 +254,10 @@ export class AppController {
 	@Post('/delete-division')
 	public deleteDivisionAPI(@Body() { idx }: DeleteDivisionDTO): never {
 		if (this.data.divisions.length > idx && idx >= 0) {
+			const name = this.data.divisions[idx].name;
+
 			this.data.divisions = [...this.data.divisions.slice(0, idx), ...this.data.divisions.slice(idx + 1)];
+			this.data.meetings = this.data.meetings.filter((meeting) => meeting.name !== name);
 		}
 
 		throw new Redirect('/config');
