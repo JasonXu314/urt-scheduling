@@ -143,7 +143,7 @@ export class AppController {
 	public deleteMeetingAPI(@Body() { id }: DeleteMeetingDTO): never {
 		this.data.meetings = this.data.meetings.filter((meeting) => meeting.id !== id);
 
-		throw new Redirect('/config');
+		throw new Redirect('/meetings');
 	}
 
 	@Get('/config')
