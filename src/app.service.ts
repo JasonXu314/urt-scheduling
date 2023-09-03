@@ -29,22 +29,27 @@ export class AppService {
 					time = DateTime.fromObject(meeting.time);
 
 				if (meeting.recurring) {
-					const shiftedTime = now.set({ hour: time.hour, minute: time.minute });
+					if (now.weekday === time.weekday) {
+						const shiftedTime = now.set({ hour: time.hour, minute: time.minute });
 
-					if (meeting.sendHeadsUp) {
-						const headsUpTime = shiftedTime.minus({ minute: 5 });
+						if (meeting.sendHeadsUp) {
+							const headsUpTime = shiftedTime.minus({ minute: 5 });
 
-						if (now.hasSame(headsUpTime, 'minute')) {
+							if (now.hasSame(headsUpTime, 'minute')) {
+								const division = data.divisions.find((division) => division.name === meeting.division)!;
+
+								discord.sendMessage(
+									division.channelId,
+									`<@&${division.roleId}> ${meeting.name} in 5 minutes in <#${division.voiceChannelId}>!`
+								);
+							}
+						}
+
+						if (now.hasSame(shiftedTime, 'minute')) {
 							const division = data.divisions.find((division) => division.name === meeting.division)!;
 
-							discord.sendMessage(division.channelId, `<@&${division.roleId}> ${meeting.name} in 5 minutes in <#${division.voiceChannelId}>!`);
+							discord.sendMessage(division.channelId, `<@&${division.roleId}> ${meeting.name} now in <#${division.voiceChannelId}>!`);
 						}
-					}
-
-					if (now.hasSame(shiftedTime, 'minute')) {
-						const division = data.divisions.find((division) => division.name === meeting.division)!;
-
-						discord.sendMessage(division.channelId, `<@&${division.roleId}> ${meeting.name} now in <#${division.voiceChannelId}>!`);
 					}
 
 					return true;
